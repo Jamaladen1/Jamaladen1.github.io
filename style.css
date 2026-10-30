@@ -123,6 +123,13 @@ a.jump:hover { color: var(--c); }
 .what { padding-left: 24px; }
 .what h3 { font-size: 24px; margin-bottom: 8px; }
 .what h3 span { display: block; font-family: Inter, sans-serif; font-size: 14.5px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+.co { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.co h3 { margin-bottom: 0; }
+.logo { flex: none; width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.logo-ms { background: #fff; }
+.logo-ms svg { width: 30px; height: 30px; }
+.logo-intuit { background: #236cff; }
+.logo-intuit svg { width: 44px; height: auto; }
 .metric { display: inline-block; background: color-mix(in srgb, var(--teal) 12%, transparent); border: 1px solid color-mix(in srgb, var(--teal) 35%, transparent); color: var(--muted); font-size: 14px; padding: 5px 12px; border-radius: 8px; margin-bottom: 12px; }
 .metric b { color: var(--teal); }
 .what > p:not(.metric):not(.stack-line) { color: var(--muted); }
