@@ -130,6 +130,8 @@ a.jump:hover { color: var(--c); }
 .logo-ms svg { width: 30px; height: 30px; }
 .logo-intuit { background: #236cff; }
 .logo-intuit svg { width: 44px; height: auto; }
+.logo-osu { background: #ba0c2f; }
+.logo-osu svg { width: 36px; height: 36px; }
 .metric { display: inline-block; background: color-mix(in srgb, var(--teal) 12%, transparent); border: 1px solid color-mix(in srgb, var(--teal) 35%, transparent); color: var(--muted); font-size: 14px; padding: 5px 12px; border-radius: 8px; margin-bottom: 12px; }
 .metric b { color: var(--teal); }
 .what > p:not(.metric):not(.stack-line) { color: var(--muted); }
