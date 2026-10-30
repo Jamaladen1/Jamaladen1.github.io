@@ -14,6 +14,6 @@ GitHub serves a repo named `<username>.github.io` at https://jamaladen1.github.i
 ## Edit
 
 - `index.html`: all content. Each section is marked with a `<!-- ===== ... ===== -->` comment.
-- `style.css`: colors are at the top (`--go`, `--java`, `--cpp`, `--kotlin`, `--accent`).
-- Headshot: add `images/headshot.jpg` and follow the comment in the hero section.
+- `style.css`: colors are at the top (`--teal`, `--go`, `--java`, `--cpp`, `--kotlin`).
+- Headshot: `images/headshot.jpg` (replace the file to change it).
 - Project screenshots in `images/` come from each repo's `docs/screenshots`.
