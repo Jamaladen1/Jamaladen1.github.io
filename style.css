@@ -119,6 +119,7 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .84em;
 .terminal .p { color: #ffffff; font-weight: 500; } .terminal .g { color: #ffffff; } .terminal .d { color: #737373; }
 
 .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.mini-grid > .mini:only-child { grid-column: 1 / -1; }
 .mini { border: 1.5px dashed #cfcfcf; border-radius: 18px; padding: 26px; transition: border-color .2s; }
 .mini:hover { border-color: var(--ink); }
 .mini h3 { font-size: 22px; margin-bottom: 8px; }

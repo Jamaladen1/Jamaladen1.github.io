@@ -69,7 +69,7 @@
       </li>
       <li style="--c: var(--py)">
         <span class="lang">Python</span>
-        <span class="where">Built multimodal inference pipelines at Intuit, and Invictus, an AI workflow platform on FastAPI and LangGraph.</span>
+        <span class="where">Built multimodal inference pipelines at Intuit, and Invictus, a crash-safe AI workflow platform on FastAPI, LangGraph and Redis.</span>
         <a class="mono jump" href="#invictus">Invictus ↓</a>
       </li>
     </ul>
@@ -160,6 +160,44 @@ Project [id, name, age, city]
       </ul>
     </article>
 
+    <!-- Python -->
+    <article id="invictus" class="project">
+      <div class="proj-top">
+        <div>
+          <span class="tag" style="--c: var(--py)">Python</span>
+          <h3>Invictus</h3>
+          <p class="mono stack-line">Python · FastAPI · LangGraph · PostgreSQL · Redis Streams · Docker</p>
+        </div>
+      </div>
+      <p class="proj-desc">A platform for running multi-stage AI workflows, such as document analysis, then human approval, then code generation, as versioned DAGs. The FastAPI control plane writes each run and an outbox event in one PostgreSQL transaction, and a dispatcher publishes it to a Redis Stream. Workers hold a time-bound PostgreSQL lease and execute the workflow as a LangGraph graph, checkpointed after every step. If a worker dies mid-run, another one takes over and resumes from the last checkpoint without repeating finished steps.</p>
+      <div class="terminal" role="img" aria-label="Trace of a run whose worker is killed mid-step and recovered, followed by recovery experiment results">
+        <div class="term-bar"><i></i><i></i><i></i><span class="mono">invictus · run trace</span></div>
+<pre><span class="d"># worker A is killed after 'charge' ran, before its result was saved</span>
+run        RUNNING   lease=worker-A  recovery_count=0
+extract    #1 SUCCEEDED
+summarize  #1 SUCCEEDED
+charge     #1 RUNNING
+
+<span class="d"># lease expires: worker B takes over and resumes from the checkpoint</span>
+run        WAITING_APPROVAL  recovery_count=1
+charge     #1 ABANDONED   worker lost (lease expired)
+charge     #2 SUCCEEDED
+review     #1 WAITING_APPROVAL
+<span class="g">side effects: 2 executions, 1 distinct effect</span>
+
+<span class="p">$</span> python scripts/recovery_experiment.py   <span class="d"># 600 runs, 164 random SIGKILLs</span>
+interrupted 146   recovered 143   <span class="g">rate 97.9%</span>   duplicate effects 0</pre>
+      </div>
+      <ul class="facts facts-row">
+        <li><b>143 / 146</b> interrupted workflows recovered across 164 randomized worker kills; the other 3 were stopped on purpose by a poison-run limit</li>
+        <li><b>Effectively-once side effects:</b> per-attempt records plus stable idempotency keys, tested by killing real workers at three crash points</li>
+        <li><b>Approval gates</b> built on LangGraph interrupts; concurrent decisions resolve to exactly one winner</li>
+        <li><b>Retries</b> with capped exponential backoff and jitter; retryable vs. fatal errors; timeouts; dead letter</li>
+        <li><b>Transactional outbox:</b> runs accepted during a Redis outage finish once it recovers</li>
+        <li><b>46 tests</b> including fault injection, race conditions and lease fencing</li>
+      </ul>
+    </article>
+
     <!-- Resume projects -->
     <div class="mini-grid">
       <article class="mini">
@@ -167,12 +205,6 @@ Project [id, name, age, city]
         <h3>KeyStone</h3>
         <p>Distributed configuration service with gRPC APIs for versioned settings. Redis pub/sub pushes changes to clients in real time; sustained 5,000 requests/second in read-heavy load tests.</p>
         <p class="mono stack-line">Go · gRPC · Redis</p>
-      </article>
-      <article id="invictus" class="mini">
-        <span class="tag" style="--c: var(--py)">Python</span>
-        <h3>Invictus</h3>
-        <p>AI workflow orchestration platform with multi-stage pipelines in LangGraph. Redis-backed job queues and retries recovered 95% of workflows interrupted by simulated worker failures.</p>
-        <p class="mono stack-line">Python · FastAPI · LangGraph · PostgreSQL · Redis · Docker</p>
       </article>
     </div>
   </section>
