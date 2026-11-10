@@ -168,6 +168,7 @@ Project [id, name, age, city]
           <h3>Invictus</h3>
           <p class="mono stack-line">Python · FastAPI · LangGraph · PostgreSQL · Redis Streams · Docker</p>
         </div>
+        <a class="gh" href="https://github.com/Jamaladen1/invictus" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
       <p class="proj-desc">A platform for running multi-stage AI workflows, such as document analysis, then human approval, then code generation, as versioned DAGs. The FastAPI control plane writes each run and an outbox event in one PostgreSQL transaction, and a dispatcher publishes it to a Redis Stream. Workers hold a time-bound PostgreSQL lease and execute the workflow as a LangGraph graph, checkpointed after every step. If a worker dies mid-run, another one takes over and resumes from the last checkpoint without repeating finished steps.</p>
       <div class="terminal" role="img" aria-label="Trace of a run whose worker is killed mid-step and recovered, followed by recovery experiment results">
