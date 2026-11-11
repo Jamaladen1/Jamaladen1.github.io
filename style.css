@@ -85,6 +85,7 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .84em;
 .lang { font-family: "Space Grotesk", sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -.03em; }
 .where { font-size: 16.5px; }
 .jump { font-size: 13px; color: var(--muted); white-space: nowrap; transition: color .2s; }
+.jumps { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .lang-list li:hover .jump { color: #bdbdbd; }
 .lang-list li:hover .jump:hover { color: var(--paper); }
 .also-tools { margin-top: 26px; color: var(--muted); font-size: 14.5px; }
@@ -117,6 +118,7 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .84em;
 .term-bar span { font-size: 12px; color: #8a8a8a; margin-left: 8px; }
 .terminal pre { font-family: "JetBrains Mono", monospace; font-size: 13.5px; line-height: 1.65; color: #d4d4d4; padding: 20px 22px; overflow-x: auto; }
 .terminal .p { color: #ffffff; font-weight: 500; } .terminal .g { color: #ffffff; } .terminal .d { color: #737373; }
+.terminal + .terminal { margin-top: 20px; }
 
 .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .mini-grid > .mini:only-child { grid-column: 1 / -1; }
@@ -176,6 +178,7 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .84em;
   .wrap { padding-left: 16px; padding-right: 16px; }
   .hero::before { inset: 0 -16px; }
   .lang-list li { grid-template-columns: 1fr; gap: 4px; }
+  .jumps { flex-direction: row; align-items: center; gap: 16px; }
   .lang { font-size: 28px; }
   .project { padding: 22px; }
   .proj-top { flex-direction: column; }
