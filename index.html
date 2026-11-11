@@ -60,7 +60,7 @@
       <li style="--c: var(--go)">
         <span class="lang">Go</span>
         <span class="where">Built a distributed job queue on PostgreSQL and KeyStone, a gRPC configuration service.</span>
-        <a class="mono jump" href="#go">Job Queue ↓</a>
+        <span class="jumps"><a class="mono jump" href="#go">Job Queue ↓</a><a class="mono jump" href="#keystone">KeyStone ↓</a></span>
       </li>
       <li style="--c: var(--java)">
         <span class="lang">Java</span>
@@ -199,15 +199,62 @@ interrupted 146   recovered 143   <span class="g">rate 97.9%</span>   duplicate 
       </ul>
     </article>
 
-    <!-- Resume projects -->
-    <div class="mini-grid">
-      <article class="mini">
-        <span class="tag" style="--c: var(--go)">Go</span>
-        <h3>KeyStone</h3>
-        <p>Distributed configuration service with gRPC APIs for versioned settings. Redis pub/sub pushes changes to clients in real time; sustained 5,000 requests/second in read-heavy load tests.</p>
-        <p class="mono stack-line">Go · gRPC · Redis</p>
-      </article>
-    </div>
+    <!-- Go: KeyStone -->
+    <article id="keystone" class="project">
+      <div class="proj-top">
+        <div>
+          <span class="tag" style="--c: var(--go)">Go</span>
+          <h3>KeyStone</h3>
+          <p class="mono stack-line">Go · gRPC · PostgreSQL · Redis pub/sub · Prometheus · Docker</p>
+        </div>
+      </div>
+      <p class="proj-desc">A configuration service for versioned application settings, run as several identical instances. Writes are compare-and-swap transactions in PostgreSQL, the source of truth. Each instance serves reads from its own in-memory cache. When a value changes, Redis pub/sub pushes it to every other instance, which update their caches and stream the change to watching clients over gRPC. Nothing polls.</p>
+      <div class="terminal" role="img" aria-label="Writes sent to instance A appear live on a watcher connected to instance B; a stale write is rejected with a version conflict">
+        <div class="term-bar"><i></i><i></i><i></i><span class="mono">keystone · two instances, one Postgres, Redis pub/sub</span></div>
+<pre><span class="d"># instance A (:7071) takes the writes</span>
+<span class="p">$</span> keystonectl -addr localhost:7071 put storefront prod payments.timeout_ms 2000
+payments.timeout_ms = "2000"  (v1, 2026-11-11T01:39:16Z by anonymous)
+<span class="p">$</span> keystonectl -addr localhost:7071 put storefront prod feature.new_checkout off
+feature.new_checkout = "off"  (v1, 2026-11-11T01:39:17Z by anonymous)
+<span class="p">$</span> keystonectl -addr localhost:7071 put storefront prod payments.timeout_ms 3500 -expect 1
+payments.timeout_ms = "3500"  (v2, 2026-11-11T01:39:17Z by anonymous)
+<span class="p">$</span> keystonectl -addr localhost:7071 put storefront prod payments.timeout_ms 9000 -expect 1
+<span class="g">error: rpc error: code = FailedPrecondition desc = version conflict: expected 1, current 2</span>
+<span class="p">$</span> keystonectl -addr localhost:7071 put storefront prod feature.new_checkout on -expect 1
+feature.new_checkout = "on"  (v2, 2026-11-11T01:39:19Z by anonymous)
+<span class="p">$</span> keystonectl -addr localhost:7071 delete storefront prod feature.new_checkout -expect 2
+deleted (tombstone v3)
+
+<span class="d"># meanwhile, a client watching instance B (:7072) sees every change; the rejected write never appears</span>
+<span class="p">$</span> keystonectl -addr localhost:7072 watch storefront prod
+<span class="d">20:39:16.306</span>  payments.timeout_ms = "2000" (v1)
+<span class="d">20:39:17.143</span>  feature.new_checkout = "off" (v1)
+<span class="d">20:39:17.931</span>  payments.timeout_ms = "3500" (v2)
+<span class="d">20:39:19.545</span>  feature.new_checkout = "on" (v2)
+<span class="d">20:39:21.145</span>  DELETE feature.new_checkout (v3)</pre>
+      </div>
+      <div class="terminal" role="img" aria-label="Read-heavy load test results across both instances">
+        <div class="term-bar"><i></i><i></i><i></i><span class="mono">keystone · read-heavy load test (99% reads, 1,000 keys, 64 workers)</span></div>
+<pre><span class="p">$</span> ./bin/loadtest -addr localhost:7071,localhost:7072 -c 64 -d 30s -warmup 5s -write-ratio 0.01 -rate 5000
+requests=150041 reads=148520 writes=1521 conflicts=0 errors=0
+throughput: <span class="g">5001 req/s</span>
+latency ms: p50=2.191 p95=4.839 p99=6.778 max=26.602
+
+<span class="p">$</span> ./bin/loadtest -addr localhost:7071,localhost:7072 -c 64 -d 30s -warmup 5s -write-ratio 0.01
+requests=1041882 reads=1031472 writes=10410 conflicts=0 errors=0
+throughput: <span class="g">34729 req/s</span>
+latency ms: p50=1.492 p95=4.155 p99=7.102 max=56.314
+<span class="d"># cache hit ratio across both instances during these runs (from /metrics): 99.96%</span></pre>
+      </div>
+      <ul class="facts facts-row">
+        <li><b>Compare-and-swap writes:</b> stale versions are rejected; 8 concurrent writers on PostgreSQL, zero lost updates</li>
+        <li><b>Push, not polling:</b> changes reach the other instances in about 1 ms on average</li>
+        <li><b>Transactional outbox:</b> a change committed by an instance that crashes before announcing it is still delivered</li>
+        <li><b>Missed-message recovery:</b> after a Redis reconnect, caches expire gradually and watch streams re-sync from PostgreSQL</li>
+        <li><b>5,000 req/s</b> read-heavy with 0 errors and a 6.8 ms p99, on a single laptop running both instances, Postgres and Redis</li>
+        <li><b>Health checks, graceful shutdown</b> (2–3 s drain) and Prometheus metrics; 28 tests including PostgreSQL/Redis integration and fault injection</li>
+      </ul>
+    </article>
   </section>
 
   <!-- ===== 03 EXPERIENCE ===== -->
